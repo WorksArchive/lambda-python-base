@@ -14,5 +14,10 @@ def get_artworks() -> dict[str, Any]:
     return {"artworks": artwork.get_artworks()}
 
 
+@app.get("/info")
+def get_info() -> dict[str, Any]:
+    return {"message": "KISEKI archive API v0.0.1"}
+
+
 def lambda_handler(event: dict, context: LambdaContext) -> dict[str, Any]:
     return app.resolve(event, context)
