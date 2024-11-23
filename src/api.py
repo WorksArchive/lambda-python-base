@@ -1,7 +1,13 @@
+import json
+
 from typing import Any
 from aws_lambda_powertools import Logger
-from aws_lambda_powertools.event_handler import APIGatewayRestResolver
-from biz import artwork
+from aws_lambda_powertools.event_handler import (
+    APIGatewayRestResolver,
+    Response,
+    content_types,
+)
+from biz import artwork, wnss
 from aws_lambda_powertools.utilities.typing.lambda_context import LambdaContext
 
 app = APIGatewayRestResolver()
@@ -17,6 +23,22 @@ def get_artworks() -> dict[str, Any]:
 @app.get("/info")
 def get_info() -> dict[str, Any]:
     return {"message": "KISEKI archive API v0.0.1"}
+
+
+@app.get("/works/<work_id>")
+def get_work(work_id: str) -> Response:
+    work = wnss.get_work(work_id)
+    if work is None:
+        status_code = 404
+        body = {"message": "works not found"}
+    else:
+        status_code = 200
+        body = work
+    return Response(
+        status_code=status_code,
+        content_type=content_types.APPLICATION_JSON,
+        body=json.dumps(body),
+    )
 
 
 def lambda_handler(event: dict, context: LambdaContext) -> dict[str, Any]:
