@@ -9,9 +9,16 @@ from aws_lambda_powertools.event_handler import (
 )
 from biz import artwork, wnss
 from aws_lambda_powertools.utilities.typing.lambda_context import LambdaContext
+from datetime import date, datetime
 
 app = APIGatewayRestResolver()
 logger = Logger(child=True)
+
+
+def json_serial(obj):
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    raise TypeError(f"Type {obj} not serializable")
 
 
 @app.get("/artworks")
@@ -37,7 +44,7 @@ def get_work(work_id: str) -> Response:
     return Response(
         status_code=status_code,
         content_type=content_types.APPLICATION_JSON,
-        body=json.dumps(body),
+        body=json.dumps(body, default=json_serial),
     )
 
 
