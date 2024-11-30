@@ -1,6 +1,6 @@
 from typeguard import typechecked
 
-from microcms import MicroCMS
+from microcms_client.microcms import MicroCMS
 from aws_client.parameter_store import get_parameter
 
 
