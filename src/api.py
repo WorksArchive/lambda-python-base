@@ -8,6 +8,7 @@ from aws_lambda_powertools.event_handler import (
     content_types,
 )
 from biz import artwork, wnss
+from microcms_client.wnss_endpoint import WnssEndpoint
 from aws_lambda_powertools.utilities.typing.lambda_context import LambdaContext
 from datetime import date, datetime
 
@@ -39,8 +40,10 @@ def get_work(work_id: str) -> Response:
         status_code = 404
         body = {"message": "works not found"}
     else:
+        cms = WnssEndpoint.get_contents(work["cms_id"])
+
         status_code = 200
-        body = work
+        body = {**work, **cms}
     return Response(
         status_code=status_code,
         content_type=content_types.APPLICATION_JSON,
