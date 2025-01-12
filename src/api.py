@@ -40,7 +40,8 @@ def get_work(work_id: str) -> Response:
         status_code = 404
         body = {"message": "works not found"}
     else:
-        cms = WnssEndpoint.get_contents(work["cms_id"])
+        cms_endpoint = WnssEndpoint()
+        cms = cms_endpoint.get_contents(work["cms_id"])
 
         status_code = 200
         body = {**work, **cms}

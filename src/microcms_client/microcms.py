@@ -7,14 +7,11 @@ from aws_client.parameter_store import get_parameter
 
 @typechecked
 class MicroCMS:
-    url = get_parameter("MICRO_CMS_URL")
-    endpoint = ""
-    api_key = get_parameter("MICRO_CMS_API_KEY")
-
     def __init__(cls, endpoint):
         cls.endpoint = endpoint
+        cls.url = get_parameter("MICRO_CMS_URL")
+        cls.api_key = get_parameter("MICRO_CMS_API_KEY")
 
-    @classmethod
     def get_contents(cls, contents_id: str) -> dict:
         retval = {}
         url = cls.url + cls.endpoint + '/' + contents_id
