@@ -7,10 +7,16 @@ from aws_lambda_powertools.event_handler import (
     Response,
     content_types,
 )
-from biz import artwork, wnss
-from microcms_client.wnss_endpoint import WnssEndpoint
+from biz import artwork
+from biz.works import Works
 from aws_lambda_powertools.utilities.typing.lambda_context import LambdaContext
 from datetime import date, datetime
+from access_control.access_control import (
+    AccessControlPermissionFactory,
+    AccessControlRole,
+)
+from access_control.access_control_auditor import AccessControlAuditor
+
 
 app = APIGatewayRestResolver()
 logger = Logger(child=True)
@@ -35,16 +41,17 @@ def get_info() -> dict[str, Any]:
 
 @app.get("/works/<work_id>")
 def get_work(work_id: str) -> Response:
-    work = wnss.get_work(work_id)
+    AccessControlAuditor.clear()
+    role = AccessControlRole()
+    role.addPermission(AccessControlPermissionFactory.getPermission("READ_GENERAL"))
+    AccessControlAuditor.addRole(role)
+    work = Works.get_work(work_id)
     if work is None:
         status_code = 404
         body = {"message": "works not found"}
     else:
-        cms_endpoint = WnssEndpoint()
-        cms = cms_endpoint.get_contents(work["cms_id"])
-
         status_code = 200
-        body = {**work, **cms}
+        body = work
     return Response(
         status_code=status_code,
         content_type=content_types.APPLICATION_JSON,
